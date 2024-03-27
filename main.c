@@ -13,6 +13,7 @@
 #include "add.h"
 #include "cJSON.h"
 #include "ls.h"
+#include "lsof.h"
 
 typedef struct args_struct {
     char *pid;
