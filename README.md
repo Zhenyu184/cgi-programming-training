@@ -11,7 +11,20 @@
 
 ### 編譯指令
 
-gcc -g chris_cgi.c cJSON.c -o chris_cgi.cgi -lpthread
+一次到位
+
+```console
+gcc -g main.c cJSON.c add.c -o ./build/main.cgi -lpthread
+```
+
+個別編譯
+
+```console
+gcc -c main.c -o main.o
+gcc -c cJSON.c -o cJSON.o
+gcc -c add.c -o add.o
+gcc main.o cJSON.o add.o -o ./build/main.cgi
+```
 
 ### 環境
 
