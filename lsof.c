@@ -80,8 +80,8 @@ char *make_absolute_path(const char *relative_path) {
 }
 
 bool grep_str(char *str1, char *str2) {
-    printf("strstr 值是 %d\n", strstr(str1, str2));
-    if (strstr(str1, str2) != NULL)
+    char *result = strstr(str1, str2);
+    if (result != NULL)
         return true;
 
     return false;
@@ -124,18 +124,15 @@ void lsof(char *path) {
             // printf("readlink: %s\n", fdlink);
             // printf("%s\t%s\t%s\n", proc->d_name, entry->d_name, fdlink);
 
-            char *absolute_path = make_absolute_path(path);
-            if (absolute_path == NULL)
-                continue;
+            // char *absolute_path = make_absolute_path(path);
+            // if (absolute_path == NULL)
+            //     continue;
 
-            if (strlen(absolute_path) == 0)
-                absolute_path = "/";
-
-            if (!grep_str(absolute_path, path))
+            if (!grep_str(fdlink, path))
                 continue;
 
             printf("%s\t%s\t%s\n", proc->d_name, entry->d_name, fdlink);
-            free(absolute_path);
+            // free(absolute_path);
         }
         closedir(d_fd);
     }
