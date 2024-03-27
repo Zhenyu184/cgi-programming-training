@@ -4,13 +4,40 @@
 #include <string.h>
 #include <unistd.h>
 
-char *my_readlink(char *fd_path, char *target_path) {
-    ssize_t len = readlink(fd_path, target_path, sizeof(target_path) - 1);
-    if (len == -1)
-        return NULL;
+char *my_readlink(const char *fd_path) {
+    // 開始分配一個較小的初始大小
+    size_t bufsize = 256;
+    char *buffer = NULL;
+    ssize_t len;
 
-    target_path[len] = '\0';
-    return target_path;
+    do {
+        // 重新分配或分配內存
+        char *tmp = realloc(buffer, bufsize);
+        if (tmp == NULL) {
+            // 內存分配失敗，釋放已分配的內存並返回 NULL
+            free(buffer);
+            return NULL;
+        }
+        buffer = tmp;
+
+        // 呼叫 readlink 函數
+        len = readlink(fd_path, buffer, bufsize - 1);
+
+        // 若連結長度大於緩衝區大小，則倍增緩衝區大小
+        if (len >= 0 && (size_t)len >= bufsize - 1) {
+            bufsize *= 2;
+        }
+        break;
+    } while (1);
+
+    if (len == -1) {
+        // 出錯，釋放內存並返回 NULL
+        free(buffer);
+        return NULL;
+    }
+
+    buffer[len] = '\0';  // 添加結尾字符
+    return buffer;
 }
 
 void lsof(const char *path) {
@@ -18,7 +45,7 @@ void lsof(const char *path) {
 
     DIR *proc_dir, *d_fd;
     struct dirent *proc, *entry;
-    char proc_fd_path[64], full_path[256], target_path[256];
+    char proc_fd_path[64], full_name[256];
     char *fdlink;
 
     proc_dir = opendir("/proc");
@@ -43,8 +70,8 @@ void lsof(const char *path) {
                 continue;
 
             // 透過 name 找連結
-            snprintf(full_path, sizeof(full_path), "/proc/%s/fd/%s", proc->d_name, entry->d_name);
-            if ((fdlink = my_readlink(full_path, target_path)) == NULL)
+            snprintf(full_name, sizeof(full_name), "/proc/%s/fd/%s", proc->d_name, entry->d_name);
+            if ((fdlink = my_readlink(full_name)) == NULL)
                 continue;
 
             printf("Process ID: %s, fd: %s, ", proc->d_name, entry->d_name);
