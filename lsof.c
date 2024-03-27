@@ -1,8 +1,11 @@
 #include <dirent.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+
+#define MAX_PATH_LENGTH 1024
 
 char *my_readlink(const char *fd_path) {
     // 開始分配一個較小的初始大小
@@ -24,9 +27,9 @@ char *my_readlink(const char *fd_path) {
         len = readlink(fd_path, buffer, bufsize - 1);
 
         // 若連結長度大於緩衝區大小，則倍增緩衝區大小
-        if (len >= 0 && (size_t)len >= bufsize - 1) {
+        if (len >= 0 && (size_t)len >= bufsize - 1)
             bufsize *= 2;
-        }
+
         break;
     } while (1);
 
@@ -40,7 +43,51 @@ char *my_readlink(const char *fd_path) {
     return buffer;
 }
 
-void lsof(const char *path) {
+char *make_absolute_path(const char *relative_path) {
+    // 獲取當前工作目錄
+    char cwd[MAX_PATH_LENGTH];
+    if (getcwd(cwd, sizeof(cwd)) == NULL) {
+        perror("getcwd() error");
+        exit(EXIT_FAILURE);
+    }
+
+    // 創建一個新的字串來保存絕對路徑
+    char *absolute_path = (char *)malloc(MAX_PATH_LENGTH * sizeof(char));
+    if (absolute_path == NULL) {
+        fprintf(stderr, "Memory allocation failed\n");
+        exit(EXIT_FAILURE);
+    }
+
+    char *token = strtok(strdup(relative_path), "/");  // 創建副本以避免更改原始字串
+    strcpy(absolute_path, cwd);
+
+    while (token != NULL) {
+        if (strcmp(token, "..") == 0) {
+            // 如果是".."，則上一級目錄
+            char *last_slash = strrchr(absolute_path, '/');
+            if (last_slash != NULL) {
+                *last_slash = '\0';
+            }
+        } else if (strcmp(token, ".") != 0) {
+            // 如果不是"."，則添加到絕對路徑中
+            strcat(absolute_path, "/");
+            strcat(absolute_path, token);
+        }
+        token = strtok(NULL, "/");
+    }
+
+    return absolute_path;
+}
+
+bool grep_str(char *str1, char *str2) {
+    printf("strstr 值是 %d\n", strstr(str1, str2));
+    if (strstr(str1, str2) != NULL)
+        return true;
+
+    return false;
+}
+
+void lsof(char *path) {
     printf("path = %s\n", path);
 
     DIR *proc_dir, *d_fd;
@@ -74,8 +121,21 @@ void lsof(const char *path) {
             if ((fdlink = my_readlink(full_name)) == NULL)
                 continue;
 
-            printf("Process ID: %s, fd: %s, ", proc->d_name, entry->d_name);
-            printf("readlink: %s\n", fdlink);
+            // printf("readlink: %s\n", fdlink);
+            // printf("%s\t%s\t%s\n", proc->d_name, entry->d_name, fdlink);
+
+            char *absolute_path = make_absolute_path(path);
+            if (absolute_path == NULL)
+                continue;
+
+            if (strlen(absolute_path) == 0)
+                absolute_path = "/";
+
+            if (!grep_str(absolute_path, path))
+                continue;
+
+            printf("%s\t%s\t%s\n", proc->d_name, entry->d_name, fdlink);
+            free(absolute_path);
         }
         closedir(d_fd);
     }
