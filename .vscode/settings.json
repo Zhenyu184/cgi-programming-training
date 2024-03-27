@@ -2,6 +2,7 @@
     "cSpell.words": [
         "argu",
         "baseofs",
+        "fdlink",
         "htttpd",
         "lpthread",
         "Mailefile",
@@ -11,6 +12,7 @@
     "files.associations": {
         "*.c": "c",
         "stdio.h": "c",
-        "stdlib.h": "c"
+        "stdlib.h": "c",
+        "typeinfo": "c"
     }
 }

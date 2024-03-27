@@ -84,7 +84,8 @@ bool is_integer(const char *num) {
 }
 
 int main(int argc, char *argv) {
-    printf("Content-Type:application/json; charset=utf-8\n\n");
+    printf("Content-Type:html/text; charset=utf-8\n\n");
+    // printf("Content-Type:application/json; charset=utf-8\n\n");
 
     // printf("Hello CGI\n");
     // printf("Sum: %d\n", add(3, 4));
