@@ -35,7 +35,7 @@ int get_cpu_cores() {
     return cores;
 }
 
-// 解析 /proc/<pid>/stat，現在 Tick
+// 解析 /proc/<pid>/stat，回傳現在 Tick
 unsigned long parse_pid_stat(const char *pid) {
     char filepath[32] = {};
     snprintf(filepath, sizeof(filepath), "/proc/%s/stat", pid);

@@ -87,6 +87,33 @@ bool grep_str(char *str1, char *str2) {
     return false;
 }
 
+// 解析 /proc/<pid>/stat，回傳 comm
+char *parse_pid_stat_comm(const char *pid) {
+    char filepath[32] = {};
+    snprintf(filepath, sizeof(filepath), "/proc/%s/stat", pid);
+
+    // 開啟 stat 文件，如果找不到返回 0
+    FILE *file = fopen(filepath, "r");
+    if (file == NULL)
+        return NULL;
+
+    // 讀取 stat 文件
+    char buffer[2048] = {};
+    if (fgets(buffer, sizeof(buffer), file) == NULL)
+        return NULL;
+
+    // 解析 comm、stime、cutime、cstime
+    char comm[32] = {};
+    if (sscanf(buffer, "%*d %31s", &comm) == EOF) {
+        fclose(file);
+        return NULL;
+    }
+
+    // 關閉文件
+    fclose(file);
+    return comm;
+}
+
 void lsof(char *path) {
     printf("path = %s\n", path);
 
@@ -131,7 +158,9 @@ void lsof(char *path) {
             if (!grep_str(fdlink, path))
                 continue;
 
-            printf("%s\t%s\t%s\n", proc->d_name, entry->d_name, fdlink);
+            char temp[16] = {};
+            strcpy(temp, parse_pid_stat_comm(proc->d_name));
+            printf("%s\t%s\t%s\t%s\n", proc->d_name, temp, entry->d_name, fdlink);
             // free(absolute_path);
         }
         closedir(d_fd);
