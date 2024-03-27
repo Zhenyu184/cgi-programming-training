@@ -89,52 +89,62 @@ int main(int argc, char *argv) {
     // printf("Hello CGI\n");
     // printf("Sum: %d\n", add(3, 4));
     // ls("../");
-    // return 0;
 
     do {
         // 讀取參數到 para
         char *para = getenv("QUERY_STRING");
         if (para == NULL) {
-            error_handling();
+            printf("parse QUERY_STRING error\n");
             break;
         }
 
         // 讀取目標 fn 到 fn
         char *fn = parse_parameter(para, "fn");
         if (fn == NULL) {
-            error_handling();
+            printf("parse fn error\n");
             break;
         }
 
         // 讀取目標 file 到 filepath
         char *filepath = parse_parameter(para, "file");
+        if (filepath == NULL) {
+            printf("parse file error\n");
+            break;
+        }
 
         // 讀取目標 s 到 second
         char *second = parse_parameter(para, "s");
+        if (second == NULL) {
+            printf("parse second error\n");
+            break;
+        }
 
         // 讀取目標 pid 到 pid
         char *pid = parse_parameter(para, "pid");
+        if (pid == NULL) {
+            printf("parse pid error\n");
+            break;
+        }
 
         // 如果 pid 或 second 不是正整數
         if (!is_integer(pid) || !is_integer(second)) {
-            error_handling();
+            printf("pid or second is not integer\n");
             break;
         }
 
         // 如果 fn 為空，就退出
         if (strlen(fn) == 0) {
+            printf("fn is empty\n");
             break;
         }
 
         // 如果 pid 為空，就預設為自己
-        if (strlen(pid) == 0) {
+        if (strlen(pid) == 0)
             pid = "self";
-        }
 
         // 如果 second 為空，就假設 0
-        if (strlen(second) == 0) {
+        if (strlen(second) == 0)
             second = "0";
-        }
 
         // 參數宣告、賦值
         args_t args = {.second = atoi(second),
@@ -143,7 +153,8 @@ int main(int argc, char *argv) {
         args_t *args_ptr = &args;
 
         // To do...
-        usage(args_ptr);
+        lsof(filepath);
+        // usage(args_ptr);
     } while (false);
 
     return 0;
