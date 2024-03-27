@@ -1,12 +1,16 @@
 {
     "cSpell.words": [
         "argu",
+        "baseofs",
         "htttpd",
         "lpthread",
-        "Mailefile"
+        "Mailefile",
+        "procps",
+        "PSSCAN"
     ],
     "files.associations": {
         "*.c": "c",
-        "stdio.h": "c"
+        "stdio.h": "c",
+        "stdlib.h": "c"
     }
 }
