@@ -115,9 +115,10 @@ char *parse_pid_stat_comm(const char *pid) {
 }
 
 void lsof(char *path) {
-    printf("path = %s\n", path);
+    // printf("path = %s\n", path);
 
-    DIR *proc_dir, *d_fd;
+    DIR *proc_dir,
+        *d_fd;
     struct dirent *proc, *entry;
     char proc_fd_path[64], full_name[256];
     char *fdlink;
@@ -155,11 +156,14 @@ void lsof(char *path) {
             // if (absolute_path == NULL)
             //     continue;
 
-            if (!grep_str(fdlink, path))
-                continue;
-
             char temp[16] = {};
             strcpy(temp, parse_pid_stat_comm(proc->d_name));
+
+            if (!grep_str(fdlink, path)) {
+                // printf("被排除 %s\t%s\t%s\n", proc->d_name, temp, fdlink);
+                continue;
+            }
+
             printf("%s\t%s\t%s\t%s\n", proc->d_name, temp, entry->d_name, fdlink);
             // free(absolute_path);
         }
