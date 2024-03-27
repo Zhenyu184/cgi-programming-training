@@ -15,6 +15,7 @@
 
 ```console
 gcc -g main.c cJSON.c add.c -o ./build/main.cgi -lpthread
+gcc -g main.c cJSON.c add.c ls.c -o ./build/main.cgi -lpthread
 ```
 
 個別編譯

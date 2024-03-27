@@ -12,6 +12,7 @@
 
 #include "add.h"
 #include "cJSON.h"
+#include "ls.h"
 
 typedef struct args_struct {
     char *pid;
@@ -222,7 +223,8 @@ int main(int argc, char *argv) {
 
     // printf("Hello CGI\n");
     printf("Sum: %d\n", add(3, 4));
-    // return 0;
+    printf("ls: %d\n", ls(5, 6));
+    return 0;
 
     do {
         // 讀取參數到 para

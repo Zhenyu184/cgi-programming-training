@@ -1,6 +1,6 @@
-#ifndef FUNCTION_H
-#define FUNCTION_H
+#ifndef ADD_H
+#define ADD_H
 
 int add(int a, int b);
 
-#endif /* FUNCTION_H */
+#endif
