@@ -222,9 +222,9 @@ int main(int argc, char *argv) {
     printf("Content-Type:application/json; charset=utf-8\n\n");
 
     // printf("Hello CGI\n");
-    printf("Sum: %d\n", add(3, 4));
-    printf("ls: %d\n", ls(5, 6));
-    return 0;
+    // printf("Sum: %d\n", add(3, 4));
+    ls("../");
+    // return 0;
 
     do {
         // 讀取參數到 para

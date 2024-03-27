@@ -4,5 +4,9 @@
         "htttpd",
         "lpthread",
         "Mailefile"
-    ]
+    ],
+    "files.associations": {
+        "*.c": "c",
+        "stdio.h": "c"
+    }
 }
