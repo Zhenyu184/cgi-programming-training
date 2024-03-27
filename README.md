@@ -16,6 +16,7 @@
 ```console
 gcc -g main.c cJSON.c add.c -o ./build/main.cgi -lpthread
 gcc -g main.c cJSON.c add.c ls.c -o ./build/main.cgi -lpthread
+gcc -g main.c cJSON.c add.c ls.c usage.c  -o ./build/main.cgi -lpthread
 ```
 
 個別編譯
@@ -25,6 +26,12 @@ gcc -c main.c -o main.o
 gcc -c cJSON.c -o cJSON.o
 gcc -c add.c -o add.o
 gcc main.o cJSON.o add.o -o ./build/main.cgi
+```
+
+用 make 編譯
+
+```console
+make
 ```
 
 ### 環境
