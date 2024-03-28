@@ -55,7 +55,7 @@ void ls(const char *path) {
         }
 
         printf("%03d\t", get_perm(statbuf));
-        printf("%lld bytes\t", (unsigned long long)statbuf.st_size);
+        printf("%8lld bytes\t", (unsigned long long)statbuf.st_size);
         printf("%s\n", filePtr->d_name);
         free(full_path);
     }

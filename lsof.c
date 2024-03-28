@@ -127,6 +127,8 @@ void lsof(char *path) {
     if (proc_dir == NULL)
         return;
 
+    printf("%4s\t%16s\t%s\t%s\n", "PID", "COMM", "FD", "NAME");
+
     // 歷遍 /proc
     while ((proc = readdir(proc_dir)) != NULL) {
         // 排除目錄名稱不是數字
@@ -164,7 +166,7 @@ void lsof(char *path) {
                 continue;
             }
 
-            printf("%s\t%s\t%s\t%s\n", proc->d_name, temp, entry->d_name, fdlink);
+            printf("%4s\t%16s\t%s\t%s\n", proc->d_name, temp, entry->d_name, fdlink);
             // free(absolute_path);
         }
         closedir(d_fd);
