@@ -1,14 +1,8 @@
 
-
-#include <asm/param.h>
-#include <errno.h>
-#include <inttypes.h>
-#include <pthread.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <unistd.h>
 
 #include "ls.h"
 #include "lsof.h"
