@@ -43,40 +43,13 @@ char *my_readlink(const char *fd_path) {
     return buffer;
 }
 
-char *make_absolute_path(const char *relative_path) {
-    // 獲取當前工作目錄
-    char cwd[MAX_PATH_LENGTH];
-    if (getcwd(cwd, sizeof(cwd)) == NULL) {
-        perror("getcwd() error");
-        exit(EXIT_FAILURE);
-    }
-
-    // 創建一個新的字串來保存絕對路徑
-    char *absolute_path = (char *)malloc(MAX_PATH_LENGTH * sizeof(char));
-    if (absolute_path == NULL) {
-        fprintf(stderr, "Memory allocation failed\n");
-        exit(EXIT_FAILURE);
-    }
-
-    char *token = strtok(strdup(relative_path), "/");  // 創建副本以避免更改原始字串
-    strcpy(absolute_path, cwd);
-
-    while (token != NULL) {
-        if (strcmp(token, "..") == 0) {
-            // 如果是".."，則上一級目錄
-            char *last_slash = strrchr(absolute_path, '/');
-            if (last_slash != NULL) {
-                *last_slash = '\0';
-            }
-        } else if (strcmp(token, ".") != 0) {
-            // 如果不是"."，則添加到絕對路徑中
-            strcat(absolute_path, "/");
-            strcat(absolute_path, token);
-        }
-        token = strtok(NULL, "/");
-    }
-
-    return absolute_path;
+char *absolute_path(char *relative_path) {
+    char *ret = (char *)malloc(1024 * sizeof(char));
+    if (ret == NULL)
+        return NULL;
+    // 這裡有個問題 relative_path 傳入 /log  realpath 會報錯未解決
+    realpath(relative_path, ret);
+    return ret;
 }
 
 bool grep_str(char *str1, char *str2) {
@@ -151,23 +124,20 @@ void lsof(char *path) {
             if ((fdlink = my_readlink(full_name)) == NULL)
                 continue;
 
-            // printf("readlink: %s\n", fdlink);
-            // printf("%s\t%s\t%s\n", proc->d_name, entry->d_name, fdlink);
+            char *real_path = absolute_path(path);
+            if (real_path == NULL)
+                continue;
 
-            // char *absolute_path = make_absolute_path(path);
-            // if (absolute_path == NULL)
-            //     continue;
-
+            // 解析 comm
             char temp[16] = {};
             strcpy(temp, parse_pid_stat_comm(proc->d_name));
 
-            if (!grep_str(fdlink, path)) {
-                // printf("被排除 %s\t%s\t%s\n", proc->d_name, temp, fdlink);
+            // 篩選目標
+            if (!grep_str(fdlink, real_path))
                 continue;
-            }
 
             printf("%4s\t%16s\t%s\t%s\n", proc->d_name, temp, entry->d_name, fdlink);
-            // free(absolute_path);
+            free(real_path);
         }
         closedir(d_fd);
     }
