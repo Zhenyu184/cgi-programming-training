@@ -1,10 +1,13 @@
 #include <dirent.h>
 #include <errno.h>
 #include <inttypes.h>
+#include <limits.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/stat.h>
+#include <unistd.h>
 
 // 讀取權限
 int get_perm(struct stat fileStat) {
@@ -23,26 +26,42 @@ int get_perm(struct stat fileStat) {
     return ret;
 }
 
+// 檢查路徑是否位於...底下
+bool is_path_under(const char *path, const char *limit) {
+    size_t len = strlen(limit);
+    size_t path_len = strlen(path);
+
+    // 確保路徑長度大於等於 "/share/" 的長度
+    if (path_len < len)
+        return false;
+
+    // 檢查路徑前綴是否是 "/share/"
+    if (strncmp(path, limit, len) == 0)
+        return true;
+
+    return false;
+}
+
 // 目錄列舉
 void ls(const char *path) {
     struct dirent *filePtr = NULL;
     struct stat statbuf;
     DIR *dir = NULL;
 
+    // 如果路徑不在 /share 底下
+    if (!is_path_under(path, "/share"))
+        return;
+
     // 取得目錄(dirent)結構指標
     dir = opendir(path);
-    if (dir == NULL) {
-        error_handling();
+    if (dir == NULL)
         return;
-    }
 
     // 找底下檔案或目錄
     while ((filePtr = readdir(dir)) != NULL) {
         char *full_path = malloc(strlen(path) + strlen(filePtr->d_name) + 2);
-        if (full_path == NULL) {
-            error_handling();
+        if (full_path == NULL)
             return;
-        }
 
         // 連結路徑
         sprintf(full_path, "%s/%s", path, filePtr->d_name);
