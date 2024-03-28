@@ -85,6 +85,36 @@ unsigned long parse_pid_status(const char *pid) {
     return ret;
 }
 
+// 讀取 comm
+void *comm_monitor(void *args) {
+    // args 傳進來是 void* 轉型成 args_t* 才找的到成員
+    args_t *args_info = (args_t *)args;
+
+    // 組路徑
+    char filepath[32] = {};
+    snprintf(filepath, sizeof(filepath), "/proc/%s/stat", args_info->pid);
+
+    // 開啟 stat 文件，如果找不到返回 0
+    FILE *file = fopen(filepath, "r");
+    if (file == NULL)
+        return NULL;
+
+    // 讀取 stat 文件
+    char buffer[2048] = {};
+    if (fgets(buffer, sizeof(buffer), file) == NULL)
+        return NULL;
+
+    // 解析 comm
+    char *ret = (char *)malloc(32 * sizeof(char));
+    if (sscanf(buffer, "%*d %31s", ret) == EOF) {
+        fclose(file);
+        return NULL;
+    }
+
+    fclose(file);
+    pthread_exit(ret);
+}
+
 // 監控行程 CPU 使用率
 void *cpu_monitor(void *args) {
     // args 傳進來是 void* 轉型成 args_t* 才找的到成員
@@ -103,9 +133,10 @@ void *cpu_monitor(void *args) {
     unsigned long delta_jitters = end_time - start_time;
     double delta_process_time = (1.0 / HZ) * delta_jitters;
     double cpu_usage = (delta_process_time * 100.0) / (HZ * args_info->second * get_cpu_cores()) * 100.0;
-    printf("\"%s\":\"%lf\"", "cpu", cpu_usage);
 
-    pthread_exit(&cpu_usage);
+    double *ret = (double *)malloc(sizeof(double));
+    *ret = cpu_usage;
+    pthread_exit(ret);
 }
 
 // 監控行程 Memory 使用率
@@ -118,24 +149,23 @@ void *memory_monitor(void *args) {
 
     // 測量
     unsigned long size = parse_pid_status(args_info->pid);
-    printf("\"%s\":\"%lu\"", "memory", size);
 
-    pthread_exit(&size);
+    unsigned long *ret = (unsigned long *)malloc(sizeof(unsigned long));
+    *ret = size;
+    pthread_exit(ret);
 }
 
 // 實現 usage 功能
 void usage(char *pid, char *second) {
-    // 印出 json 頭
-    printf("{");
-
     // 定義參數結構
     args_t args = {.pid = pid,
                    .second = atoi(second)};
     args_t *args_ptr = &args;
 
     // 開執行緒偵測
-    pthread_t cpu_thread,
-        memory_thread;
+    pthread_t comm_thread, cpu_thread, memory_thread;
+    if (pthread_create(&comm_thread, NULL, comm_monitor, (void *)args_ptr) != 0)
+        return;
     if (pthread_create(&cpu_thread, NULL, cpu_monitor, (void *)args_ptr) != 0)
         return;
     if (pthread_create(&memory_thread, NULL, memory_monitor, (void *)args_ptr) != 0)
@@ -145,11 +175,26 @@ void usage(char *pid, char *second) {
     // printf("work = %llu\n", work(50));
 
     // 結束執行續
-    pthread_join(cpu_thread, NULL);
-    pthread_join(memory_thread, NULL);
+    char *comm_ret = NULL;
+    double *cpu_ret = NULL;
+    unsigned long *memory_ret = NULL;
+    if (pthread_join(comm_thread, (void **)&comm_ret) != 0)
+        return;
+    if (pthread_join(cpu_thread, (void **)&cpu_ret) != 0)
+        return;
+    if (pthread_join(memory_thread, (void **)&memory_thread) != 0)
+        return;
 
-    // 印出 json 尾
+    // 印出 json
+    printf("{");
+    printf("\"comm\":\"%s\",", comm_ret);
+    printf("\"cpu\":%lf,", cpu_ret);
+    printf("\"memory\":%lu", memory_ret);
     printf("}");
+
+    free(comm_ret);
+    free(cpu_ret);
+    free(memory_ret);
 
     return;
 }
