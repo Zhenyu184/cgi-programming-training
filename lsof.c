@@ -102,16 +102,16 @@ char *parse_pid_stat_comm(const char *pid) {
     if (fgets(buffer, sizeof(buffer), file) == NULL)
         return NULL;
 
-    // 解析 comm、stime、cutime、cstime
-    char comm[32] = {};
-    if (sscanf(buffer, "%*d %31s", &comm) == EOF) {
+    // 解析 comm
+    char *ret = (char *)malloc(32 * sizeof(char));
+    if (sscanf(buffer, "%*d %31s", ret) == EOF) {
         fclose(file);
         return NULL;
     }
 
     // 關閉文件
     fclose(file);
-    return comm;
+    return ret;
 }
 
 void lsof(char *path) {
