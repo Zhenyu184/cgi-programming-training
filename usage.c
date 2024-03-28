@@ -178,14 +178,14 @@ void usage(char *pid, char *second) {
         return;
     if (pthread_join(cpu_thread, (void **)&cpu_ret) != 0)
         return;
-    if (pthread_join(memory_thread, (void **)&memory_thread) != 0)
+    if (pthread_join(memory_thread, (void **)&memory_ret) != 0)
         return;
 
     // 印出 json
     printf("{");
     printf("\"comm\":\"%s\",", comm_ret);
-    printf("\"cpu\":%lf,", cpu_ret);
-    printf("\"memory\":%lu", memory_ret);
+    printf("\"cpu(%%)\":%lf,", *cpu_ret);
+    printf("\"memory\":%lu", *memory_ret);
     printf("}");
 
     free(comm_ret);
