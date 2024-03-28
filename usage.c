@@ -185,7 +185,7 @@ void usage(char *pid, char *second) {
     printf("{");
     printf("\"comm\":\"%s\",", comm_ret);
     printf("\"cpu(%%)\":%lf,", *cpu_ret);
-    printf("\"memory\":%lu", *memory_ret);
+    printf("\"memory(KB)\":%lu", *memory_ret);
     printf("}");
 
     free(comm_ret);

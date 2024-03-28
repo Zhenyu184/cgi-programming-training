@@ -1,8 +1,8 @@
 CC = gcc
-CFLAGS = -g -Wall
+CFLAGS = -g
 LIBS = -lpthread
 
-SRCS = main.c cJSON.c add.c ls.c usage.c lsof.c
+SRCS = main.c ls.c usage.c lsof.c
 OBJS = $(addprefix build/,$(SRCS:.c=.o))
 TARGET = build/main.cgi
 

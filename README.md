@@ -30,7 +30,6 @@ gcc main.o ls.oo usage.o lsof.o -o ./build/main.cgi
 用 make 編譯
 
 ```console
-mkdir build && cd build
 make
 ```
 
