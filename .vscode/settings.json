@@ -13,6 +13,7 @@
         "*.c": "c",
         "stdio.h": "c",
         "stdlib.h": "c",
-        "typeinfo": "c"
+        "typeinfo": "c",
+        "ls.h": "c"
     }
 }

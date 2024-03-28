@@ -10,16 +10,9 @@
 #include <string.h>
 #include <unistd.h>
 
-#include "add.h"
-#include "cJSON.h"
 #include "ls.h"
 #include "lsof.h"
-
-typedef struct args_struct {
-    char *pid;
-    int second;
-    cJSON *ret_json;
-} args_t;
+#include "usage.h"
 
 // 錯誤處理
 void error_handling() {
@@ -71,7 +64,7 @@ char *parse_parameter(char *str, const char *target) {
 bool is_integer(const char *num) {
     int i = 0;
 
-    // 歷遍每個字元
+    // 尋找每個字元
     for (i = 0; num[i]; ++i) {
         if (num[i] > '9' || num[i] < '0')
             return false;
@@ -84,13 +77,6 @@ bool is_integer(const char *num) {
 }
 
 int main(int argc, char *argv) {
-    printf("Content-Type:html/text; charset=utf-8\n\n");
-    // printf("Content-Type:application/json; charset=utf-8\n\n");
-
-    // printf("Hello CGI\n");
-    // printf("Sum: %d\n", add(3, 4));
-    // ls("../");
-
     do {
         // 讀取參數到 para
         char *para = getenv("QUERY_STRING");
@@ -106,56 +92,94 @@ int main(int argc, char *argv) {
             break;
         }
 
-        // 讀取目標 file 到 filepath
-        char *filepath = parse_parameter(para, "file");
-        if (filepath == NULL) {
-            printf("parse file error\n");
-            break;
-        }
-
-        // 讀取目標 s 到 second
-        char *second = parse_parameter(para, "s");
-        if (second == NULL) {
-            printf("parse second error\n");
-            break;
-        }
-
-        // 讀取目標 pid 到 pid
-        char *pid = parse_parameter(para, "pid");
-        if (pid == NULL) {
-            printf("parse pid error\n");
-            break;
-        }
-
-        // 如果 pid 或 second 不是正整數
-        if (!is_integer(pid) || !is_integer(second)) {
-            printf("pid or second is not integer\n");
-            break;
-        }
-
         // 如果 fn 為空，就退出
         if (strlen(fn) == 0) {
             printf("fn is empty\n");
             break;
         }
 
-        // 如果 pid 為空，就預設為自己
-        if (strlen(pid) == 0)
-            pid = "self";
+        // 功能路由
+        if (strcmp(fn, "ls") == 0) {
+            // 指定輸出 text
+            printf("Content-Type:text; charset=utf-8\n\n");
 
-        // 如果 second 為空，就假設 0
-        if (strlen(second) == 0)
-            second = "0";
+            // 讀取目標 file 到 filepath
+            char *filepath = parse_parameter(para, "file");
+            if (filepath == NULL) {
+                printf("parse file error\n");
+                break;
+            }
 
-        // 參數宣告、賦值
-        args_t args = {.second = atoi(second),
-                       .pid = pid,
-                       .ret_json = cJSON_CreateObject()};
-        args_t *args_ptr = &args;
+            // 如果 file 為空，就退出
+            if (strlen(filepath) == 0) {
+                printf("file is empty\n");
+                break;
+            }
 
-        // To do...
-        lsof(filepath);
-        // usage(args_ptr);
+            // 執行 ls
+            ls(filepath);
+            break;
+        }
+
+        if (strcmp(fn, "usage") == 0) {
+            // 指定輸出
+            printf("Content-Type:application/json; charset=utf-8\n\n");
+
+            // 讀取目標 s 到 second
+            char *second = parse_parameter(para, "s");
+            if (second == NULL) {
+                printf("parse second error\n");
+                break;
+            }
+
+            // 讀取目標 pid 到 pid
+            char *pid = parse_parameter(para, "pid");
+            if (pid == NULL) {
+                printf("parse pid error\n");
+                break;
+            }
+
+            // 如果 pid 或 second 不是正整數
+            if (!is_integer(pid) || !is_integer(second)) {
+                printf("pid or second is not integer\n");
+                break;
+            }
+
+            // 如果 pid 為空，就預設為自己
+            if (strlen(pid) == 0)
+                pid = "self";
+
+            // 如果 second 為空，就假設 1
+            if (strlen(second) == 0)
+                second = "1";
+
+            // 執行 usage
+            usage(pid, second);
+            break;
+        }
+
+        if (strcmp(fn, "lsof") == 0) {
+            // 指定輸出 text
+            printf("Content-Type:text; charset=utf-8\n\n");
+
+            // 讀取目標 file 到 filepath
+            char *filepath = parse_parameter(para, "file");
+            if (filepath == NULL) {
+                printf("parse file error\n");
+                break;
+            }
+
+            // 如果 file 為空，就退出
+            if (strlen(filepath) == 0) {
+                printf("file is empty\n");
+                break;
+            }
+
+            // 執行 lsof
+            lsof(filepath);
+            break;
+        }
+
     } while (false);
 
     return 0;

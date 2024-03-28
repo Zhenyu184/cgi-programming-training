@@ -10,12 +10,9 @@
 #include <string.h>
 #include <unistd.h>
 
-#include "cJSON.h"
-
-typedef struct args_struct {
+typedef struct args {
     char *pid;
     int second;
-    cJSON *ret_json;
 } args_t;
 
 // 定義一個耗時的工作來測試
@@ -106,13 +103,7 @@ void *cpu_monitor(void *args) {
     unsigned long delta_jitters = end_time - start_time;
     double delta_process_time = (1.0 / HZ) * delta_jitters;
     double cpu_usage = (delta_process_time * 100.0) / (HZ * args_info->second * get_cpu_cores()) * 100.0;
-
-    // printf("HZ = %d\n", HZ);
-    // printf("1 個 Tick = %lf 秒\n", 1.0 / HZ); // Tick 是 HZ 的倒數
-    // printf("經過 %lu 個 Tick\n", delta_jitters);
-    // printf("所以共經過 %lf 秒\n", delta_process_time);
-    // printf("CPU 使用率是 %lf %% \n", cpu_usage);
-    cJSON_AddNumberToObject(args_info->ret_json, "cpu", cpu_usage);
+    printf("\"%s\":\"%lf\"", "cpu", cpu_usage);
 
     pthread_exit(&cpu_usage);
 }
@@ -127,18 +118,27 @@ void *memory_monitor(void *args) {
 
     // 測量
     unsigned long size = parse_pid_status(args_info->pid);
-    cJSON_AddNumberToObject(args_info->ret_json, "memory", size);
+    printf("\"%s\":\"%lu\"", "memory", size);
 
     pthread_exit(&size);
 }
 
 // 實現 usage 功能
-void usage(args_t *args) {
+void usage(char *pid, char *second) {
+    // 印出 json 頭
+    printf("{");
+
+    // 定義參數結構
+    args_t args = {.pid = pid,
+                   .second = atoi(second)};
+    args_t *args_ptr = &args;
+
     // 開執行緒偵測
-    pthread_t cpu_thread, memory_thread;
-    if (pthread_create(&cpu_thread, NULL, cpu_monitor, (void *)args) != 0)
+    pthread_t cpu_thread,
+        memory_thread;
+    if (pthread_create(&cpu_thread, NULL, cpu_monitor, (void *)args_ptr) != 0)
         return;
-    if (pthread_create(&memory_thread, NULL, memory_monitor, (void *)args) != 0)
+    if (pthread_create(&memory_thread, NULL, memory_monitor, (void *)args_ptr) != 0)
         return;
 
     // 測試用
@@ -148,8 +148,8 @@ void usage(args_t *args) {
     pthread_join(cpu_thread, NULL);
     pthread_join(memory_thread, NULL);
 
-    // 印出 json
-    printf("%s\n", cJSON_Print(args->ret_json));
+    // 印出 json 尾
+    printf("}");
 
     return;
 }
