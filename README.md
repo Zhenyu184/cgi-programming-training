@@ -14,24 +14,23 @@
 一次到位
 
 ```console
-gcc -g main.c cJSON.c add.c -o ./build/main.cgi -lpthread
-gcc -g main.c cJSON.c add.c ls.c -o ./build/main.cgi -lpthread
-gcc -g main.c cJSON.c add.c ls.c usage.c  -o ./build/main.cgi -lpthread
-gcc -g main.c cJSON.c add.c ls.c lsof.c usage.c  -o ./build/main.cgi -lpthread
+gcc -g main.c ls.c lsof.c usage.c  -o ./build/main.cgi -lpthread
 ```
 
 個別編譯
 
 ```console
 gcc -c main.c -o main.o
-gcc -c cJSON.c -o cJSON.o
-gcc -c add.c -o add.o
-gcc main.o cJSON.o add.o -o ./build/main.cgi
+gcc -c ls.c -o ls.o
+gcc -c usage.c -o usage.o
+gcc -c lsof.c -o lsof.o
+gcc main.o ls.oo usage.o lsof.o -o ./build/main.cgi
 ```
 
 用 make 編譯
 
 ```console
+mkdir build && cd build
 make
 ```
 
