@@ -47,7 +47,6 @@ char *absolute_path(char *relative_path) {
     char *ret = (char *)malloc(1024 * sizeof(char));
     if (ret == NULL)
         return NULL;
-    // 這裡有個問題 relative_path 傳入 /log  realpath 會報錯未解決
     realpath(relative_path, ret);
     return ret;
 }
