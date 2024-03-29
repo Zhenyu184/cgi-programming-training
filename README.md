@@ -9,6 +9,15 @@
    2. 實現程式 CPU(percentage)/Memory(bytes) 使用率(fn=usage)的探測功能，並且接受 (pid=) 參數作為目標程式(不給值代表預設為自己)來進行幾秒(s=)間的使用率計算，完成列舉的回應內容必須以 utf8 json 格式印出以下內容： {"comm":"find","cpu":23.4,"memory":10240}
    3. 找出開啟目標檔案的程式(fn=lsof)，接受 (file=) 作為參數，將所有開啟該檔案的程式 (comm) 逐一使用 utf8 plain text 列舉出來
 
+### Tool chain
+
+arm 64
+
+```console
+(source ~/ndk/alpha/arm_64/environ; make )
+(source ~/ndk/alpha/arm_64/environ; aarch64-QNAP-linux-gnu-gcc hello.c -o hello.cgi )
+```
+
 ### 編譯指令
 
 一次到位

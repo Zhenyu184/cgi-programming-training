@@ -66,7 +66,6 @@ void ls(const char *path) {
 
         // stat() 成功返回 0 失敗返回 -1 錯誤資訊放在 errno
         if (stat(full_path, &statbuf) == -1) {
-            error_handling();
             free(full_path);
             continue;
         }

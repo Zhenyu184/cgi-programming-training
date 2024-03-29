@@ -1,4 +1,4 @@
-CC = gcc
+CC=${CROSS_COMPILE_TARGET}gcc
 CFLAGS = -g
 LIBS = -lpthread
 
