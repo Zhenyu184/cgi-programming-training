@@ -1,6 +1,7 @@
 CC=${CROSS_COMPILE_TARGET}gcc
 CFLAGS = -g -Wall
 LIBS = -lpthread
+DFLAGS = -D_GNU_SOURCE
 
 SRCS = main.c ls.c usage.c lsof.c
 OBJS = $(addprefix build/,$(SRCS:.c=.o))
@@ -16,7 +17,7 @@ $(TARGET): $(OBJS)
 
 build/%.o: %.c
 	@mkdir -p $(dir $@)
-	$(CC) $(CFLAGS) -c $< -o $@
+	$(CC) $(CFLAGS) $(DFLAGS) -c $< -o $@
 
 clean:
 	$(RM) -r build

@@ -43,14 +43,18 @@ void ls(const char *path) {
     struct dirent *filePtr = NULL;
     while ((filePtr = readdir(dir)) != NULL) {
         // 連結路徑
-        char full_path[PATH_MAX] = {};
-        sprintf(full_path, "%s/%s", path, filePtr->d_name);
-
-        // stat() 成功返回 0 失敗返回 -1 錯誤資訊放在 errno
-        if (stat(full_path, &statbuf) == -1) {
+        char *full_path;
+        if (asprintf(&full_path, "%s/%s", path, filePtr->d_name) < 0) {
             continue;
         }
 
+        // stat() 成功返回 0 失敗返回 -1 錯誤資訊放在 errno
+        if (stat(full_path, &statbuf) == -1) {
+            free(full_path);
+            continue;
+        }
+
+        free(full_path);
         printf(
             "%o\t"
             "%8ju bytes\t"
