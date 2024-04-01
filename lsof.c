@@ -6,6 +6,23 @@
 #include <unistd.h>
 #include <stdbool.h>
 
+// #define AUTO_STR __attribute__((cleanup(auto_free_str))) char *
+// #define AUTO_FILE __attribute__((cleanup(auto_close_file))) FILE *
+
+// void auto_free_str(char **str) {
+//     if (str && *str) {
+//         free(*str);
+//         *str = NULL;
+//     }
+// }
+
+// void auto_close_file(FILE **file) {
+//     if (file && *file) {
+//         fclose(*file);
+//         *file = NULL;
+//     }
+// }
+
 char *my_readlink(const char *fd_path) {
     // 開始分配一個較小的初始大小
     ssize_t len = 0;
@@ -30,7 +47,7 @@ char *my_readlink(const char *fd_path) {
             bufsize *= 2;
         }
 
-    } while (1);
+    } while (false);
 
     if (len == -1) {
         // 出錯，釋放內存並返回 NULL
