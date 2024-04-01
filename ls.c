@@ -7,23 +7,6 @@
 #include <stdbool.h>
 #include <sys/stat.h>  //statbuf 用
 
-// 讀取權限
-int get_perm(struct stat fileStat) {
-    int ret = 0;
-    ret += (fileStat.st_mode & S_IRUSR) ? 4 : 0;
-    ret += (fileStat.st_mode & S_IWUSR) ? 2 : 0;
-    ret += (fileStat.st_mode & S_IXUSR) ? 1 : 0;
-    ret *= 10;
-    ret += (fileStat.st_mode & S_IRGRP) ? 4 : 0;
-    ret += (fileStat.st_mode & S_IWGRP) ? 2 : 0;
-    ret += (fileStat.st_mode & S_IXGRP) ? 1 : 0;
-    ret *= 10;
-    ret += (fileStat.st_mode & S_IROTH) ? 4 : 0;
-    ret += (fileStat.st_mode & S_IWOTH) ? 2 : 0;
-    ret += (fileStat.st_mode & S_IXOTH) ? 1 : 0;
-    return ret;
-}
-
 // 檢查路徑是否位於...底下
 bool is_path_under(const char *path, const char *limit) {
     size_t len = strlen(limit);
@@ -72,10 +55,10 @@ void ls(const char *path) {
         }
 
         printf(
-            "%03d\t"
+            "%o\t"
             "%8llu bytes\t"
             "%s\n",
-            get_perm(statbuf),
+            statbuf.st_mode % 512,
             (unsigned long long)statbuf.st_size,
             filePtr->d_name);
         free(full_path);
