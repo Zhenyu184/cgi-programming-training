@@ -1,11 +1,11 @@
+#include <stdio.h>
 #include <dirent.h>
 #include <limits.h>
-#include <stdbool.h>
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sys/stat.h>  //statbuf 用
 #include <unistd.h>
+#include <stdbool.h>
+#include <sys/stat.h>  //statbuf 用
 
 // 讀取權限
 int get_perm(struct stat fileStat) {

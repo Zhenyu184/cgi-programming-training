@@ -1,12 +1,10 @@
 #include <ctype.h>
-#include <dirent.h>
-#include <stdbool.h>
 #include <stdio.h>
+#include <dirent.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-
-#define MAX_PATH_LENGTH 1024
+#include <stdbool.h>
 
 char *my_readlink(const char *fd_path) {
     // 開始分配一個較小的初始大小

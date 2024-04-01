@@ -18,6 +18,9 @@
         "stdbool.h": "c",
         "unistd.h": "c",
         "string.h": "c",
-        "lsof.h": "c"
+        "lsof.h": "c",
+        "dirent.h": "c",
+        "stat.h": "c",
+        "limits.h": "c"
     }
 }

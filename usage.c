@@ -1,10 +1,10 @@
-#include <asm/param.h>
-#include <pthread.h>
-#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <pthread.h>
+#include <stdbool.h>
+#include <asm/param.h>
 
 typedef struct args {
     char *pid;
