@@ -43,7 +43,7 @@ char *parse_parameter(char *str, const char *target) {
     char *ret = NULL;
     char *temp = NULL;
     const char *delimiter = "&";
-    for (*temp = strtok(str_copy, delimiter); temp != NULL; temp = strtok(NULL, delimiter)) {
+    for (temp = strtok(str_copy, delimiter); temp != NULL; temp = strtok(NULL, delimiter)) {
         // 如果該段落是要找的目標提早 return
         if ((ret = parse_value(temp, target))) {
             return ret;

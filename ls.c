@@ -1,11 +1,11 @@
 #include <stdio.h>
 #include <dirent.h>
-#include <limits.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 #include <stdbool.h>
 #include <sys/stat.h>  //statbuf 用
+#include <linux/limits.h>
 
 // 檢查路徑是否位於...底下
 bool is_path_under(const char *path, const char *limit) {
@@ -34,34 +34,30 @@ void ls(const char *path) {
 
     // 取得目錄(dirent)結構指標
     DIR *dir = opendir(path);
-    if (dir == NULL) return;
+    if (dir == NULL) {
+        return;
+    }
 
     // 找底下檔案或目錄
     struct stat statbuf = {};
     struct dirent *filePtr = NULL;
     while ((filePtr = readdir(dir)) != NULL) {
-        char *full_path = malloc(strlen(path) + strlen(filePtr->d_name) + 2);
-        if (full_path == NULL) {
-            return;
-        }
-
         // 連結路徑
+        char full_path[PATH_MAX] = {};
         sprintf(full_path, "%s/%s", path, filePtr->d_name);
 
         // stat() 成功返回 0 失敗返回 -1 錯誤資訊放在 errno
         if (stat(full_path, &statbuf) == -1) {
-            free(full_path);
             continue;
         }
 
         printf(
             "%o\t"
-            "%8llu bytes\t"
+            "%8ju bytes\t"
             "%s\n",
             statbuf.st_mode % 512,
-            (unsigned long long)statbuf.st_size,
+            statbuf.st_size,
             filePtr->d_name);
-        free(full_path);
     }
 
     printf("\n");
