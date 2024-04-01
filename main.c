@@ -40,17 +40,14 @@ char *parse_parameter(char *str, const char *target) {
     // 複製輸入字串指標，避免副作用
     char *str_copy = strdup(str);
 
-    const char *delimiter = "&";
     char *ret = NULL;
-    char *temp = strtok(str_copy, delimiter);
-    while (temp != NULL) {
+    char *temp = NULL;
+    const char *delimiter = "&";
+    for (*temp = strtok(str_copy, delimiter); temp != NULL; temp = strtok(NULL, delimiter)) {
         // 如果該段落是要找的目標提早 return
         if ((ret = parse_value(temp, target))) {
             return ret;
         }
-
-        // 繼續找
-        temp = strtok(NULL, delimiter);
     }
 
     // 什麼都沒匹配到
