@@ -30,36 +30,37 @@ bool is_path_under(const char *path, const char *limit) {
     size_t path_len = strlen(path);
 
     // 確保路徑長度大於等於 "/share/" 的長度
-    if (path_len < len)
+    if (path_len < len) {
         return false;
+    }
 
     // 檢查路徑前綴是否是 "/share/"
-    if (strncmp(path, limit, len) == 0)
+    if (strncmp(path, limit, len) == 0) {
         return true;
+    }
 
     return false;
 }
 
 // 目錄列舉
 void ls(const char *path) {
-    struct dirent *filePtr = NULL;
-    struct stat statbuf;
-    DIR *dir = NULL;
-
     // 如果路徑不在 /share 底下
-    if (!is_path_under(path, "/share"))
+    if (!is_path_under(path, "/share")) {
         return;
+    }
 
     // 取得目錄(dirent)結構指標
-    dir = opendir(path);
-    if (dir == NULL)
-        return;
+    DIR *dir = opendir(path);
+    if (dir == NULL) return;
 
     // 找底下檔案或目錄
+    struct stat statbuf = {};
+    struct dirent *filePtr = NULL;
     while ((filePtr = readdir(dir)) != NULL) {
         char *full_path = malloc(strlen(path) + strlen(filePtr->d_name) + 2);
-        if (full_path == NULL)
+        if (full_path == NULL) {
             return;
+        }
 
         // 連結路徑
         sprintf(full_path, "%s/%s", path, filePtr->d_name);
@@ -70,9 +71,13 @@ void ls(const char *path) {
             continue;
         }
 
-        printf("%03d\t", get_perm(statbuf));
-        printf("%8lld bytes\t", (unsigned long long)statbuf.st_size);
-        printf("%s\n", filePtr->d_name);
+        printf(
+            "%03d\t"
+            "%8llu bytes\t"
+            "%s\n",
+            get_perm(statbuf),
+            (unsigned long long)statbuf.st_size,
+            filePtr->d_name);
         free(full_path);
     }
 

@@ -17,8 +17,9 @@ char *parse_value(char *section, const char *target) {
     char *equalPtr = strchr(section, '=');
 
     // 如果段落沒有 "=" 提早 return
-    if (equalPtr == NULL)
+    if (equalPtr == NULL) {
         return NULL;
+    }
 
     // 將"="的"值"改成結束字元
     *equalPtr = '\0';
@@ -26,8 +27,9 @@ char *parse_value(char *section, const char *target) {
     char *value = equalPtr + 1;
 
     // 比較 key 是否為要找的目標
-    if (strcmp(key, target) == 0)
+    if (strcmp(key, target) == 0) {
         return value;
+    }
 
     // 什麼都沒找到
     return NULL;
@@ -43,8 +45,9 @@ char *parse_parameter(char *str, const char *target) {
     char *temp = strtok(str_copy, delimiter);
     while (temp != NULL) {
         // 如果該段落是要找的目標提早 return
-        if (ret = parse_value(temp, target))
+        if (ret = parse_value(temp, target)) {
             return ret;
+        }
 
         // 繼續找
         temp = strtok(NULL, delimiter);
@@ -60,13 +63,15 @@ bool is_integer(const char *num) {
 
     // 尋找每個字元
     for (i = 0; num[i]; ++i) {
-        if (num[i] > '9' || num[i] < '0')
+        if (num[i] > '9' || num[i] < '0') {
             return false;
+        }
     }
 
     // 都是數字但超過 10 位數(pid_t是int)
-    if (i > 10)
+    if (i > 10) {
         return false;
+    }
     return true;
 }
 
@@ -140,12 +145,14 @@ int main(int argc, char *argv) {
             }
 
             // 如果 pid 為空，就預設為自己
-            if (strlen(pid) == 0)
+            if (strlen(pid) == 0) {
                 pid = "self";
+            }
 
             // 如果 second 為空，就假設 1
-            if (strlen(second) == 0)
+            if (strlen(second) == 0) {
                 second = "1";
+            }
 
             // 執行 usage
             usage(pid, second);
