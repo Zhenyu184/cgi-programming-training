@@ -5,23 +5,24 @@
 #include <string.h>
 #include <unistd.h>
 #include <stdbool.h>
+#include <linux/limits.h>
 
-// #define AUTO_STR __attribute__((cleanup(auto_free_str))) char *
-// #define AUTO_FILE __attribute__((cleanup(auto_close_file))) FILE *
+#define AUTO_STR __attribute__((cleanup(auto_free_str))) char *
+#define AUTO_FILE __attribute__((cleanup(auto_close_file))) FILE *
 
-// void auto_free_str(char **str) {
-//     if (str && *str) {
-//         free(*str);
-//         *str = NULL;
-//     }
-// }
+void auto_free_str(char **str) {
+    if (str && *str) {
+        free(*str);
+        *str = NULL;
+    }
+}
 
-// void auto_close_file(FILE **file) {
-//     if (file && *file) {
-//         fclose(*file);
-//         *file = NULL;
-//     }
-// }
+void auto_close_file(FILE **file) {
+    if (file && *file) {
+        fclose(*file);
+        *file = NULL;
+    }
+}
 
 char *my_readlink(const char *fd_path) {
     // 開始分配一個較小的初始大小
@@ -46,7 +47,6 @@ char *my_readlink(const char *fd_path) {
         if (len >= 0 && (size_t)len >= bufsize - 1) {
             bufsize *= 2;
         }
-
     } while (false);
 
     if (len == -1) {
@@ -60,12 +60,13 @@ char *my_readlink(const char *fd_path) {
 }
 
 char *absolute_path(char *relative_path) {
-    char *ret = (char *)malloc(1024 * sizeof(char));
-    if (ret == NULL) {
+    char ret[PATH_MAX] = {};
+    char *ret_ptr = (char *)malloc(sizeof(ret));
+    if (ret_ptr == NULL) {
         return NULL;
     }
-    realpath(relative_path, ret);
-    return ret;
+    realpath(relative_path, ret_ptr);
+    return ret_ptr;
 }
 
 bool grep_str(char *str1, char *str2) {
@@ -79,11 +80,11 @@ bool grep_str(char *str1, char *str2) {
 
 // 解析 /proc/<pid>/stat，回傳 comm
 char *parse_pid_stat_comm(const char *pid) {
-    char filepath[32] = {};
+    char filepath[PATH_MAX] = {};
     snprintf(filepath, sizeof(filepath), "/proc/%s/stat", pid);
 
     // 開啟 stat 文件，如果找不到返回 0
-    FILE *file = fopen(filepath, "r");
+    AUTO_FILE file = fopen(filepath, "r");
     if (file == NULL) {
         return NULL;
     }
@@ -95,15 +96,14 @@ char *parse_pid_stat_comm(const char *pid) {
     }
 
     // 解析 comm
-    char *ret = (char *)malloc(32 * sizeof(char));
-    if (sscanf(buffer, "%*d %31s", ret) == EOF) {
-        fclose(file);
+    char ret[PATH_MAX] = {};
+    char *ret_ptr = (char *)malloc(sizeof(ret));
+    if (sscanf(buffer, "%*d %31s", ret_ptr) == EOF) {
         return NULL;
     }
 
     // 關閉文件
-    fclose(file);
-    return ret;
+    return ret_ptr;
 }
 
 void lsof(char *path) {
