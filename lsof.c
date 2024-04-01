@@ -14,8 +14,6 @@ char *my_readlink(const char *fd_path) {
 
     do {
         // 重新分配或分配內存
-        char *buffer = NULL;
-        size_t bufsize = 256;
         char *tmp = realloc(buffer, bufsize);
         if (tmp == NULL) {
             // 內存分配失敗，釋放已分配的內存並返回 NULL

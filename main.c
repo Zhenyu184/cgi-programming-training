@@ -45,7 +45,7 @@ char *parse_parameter(char *str, const char *target) {
     char *temp = strtok(str_copy, delimiter);
     while (temp != NULL) {
         // 如果該段落是要找的目標提早 return
-        if (ret = parse_value(temp, target)) {
+        if ((ret = parse_value(temp, target))) {
             return ret;
         }
 
@@ -75,7 +75,7 @@ bool is_integer(const char *num) {
     return true;
 }
 
-int main(int argc, char *argv) {
+int main(int argc, char **argv) {
     do {
         // 讀取參數到 para
         char *para = getenv("QUERY_STRING");

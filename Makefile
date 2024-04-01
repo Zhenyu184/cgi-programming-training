@@ -1,5 +1,5 @@
 CC=${CROSS_COMPILE_TARGET}gcc
-CFLAGS = -g
+CFLAGS = -g -Wall
 LIBS = -lpthread
 
 SRCS = main.c ls.c usage.c lsof.c
