@@ -30,8 +30,6 @@ char *my_readlink(const char *fd_path) {
         // 若連結長度大於緩衝區大小，則倍增緩衝區大小
         if (len >= 0 && (size_t)len >= bufsize - 1)
             bufsize *= 2;
-
-        break;
     } while (1);
 
     if (len == -1) {

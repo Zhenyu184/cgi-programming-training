@@ -15,6 +15,9 @@
         "stdlib.h": "c",
         "typeinfo": "c",
         "ls.h": "c",
-        "stdbool.h": "c"
+        "stdbool.h": "c",
+        "unistd.h": "c",
+        "string.h": "c",
+        "lsof.h": "c"
     }
 }

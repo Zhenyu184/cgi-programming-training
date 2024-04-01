@@ -14,8 +14,7 @@
 arm 64
 
 ```console
-(source ~/ndk/alpha/arm_64/environ; make )
-(source ~/ndk/alpha/arm_64/environ; aarch64-QNAP-linux-gnu-gcc hello.c -o hello.cgi )
+(source ~/ndk/alpha/x86_64/environ; aarch64-QNAP-linux-gnu-gcc hello.c -o hello.cgi )
 ```
 
 ### 編譯指令
@@ -40,6 +39,10 @@ gcc main.o ls.oo usage.o lsof.o -o ./build/main.cgi
 
 ```console
 make
+```
+
+```console
+(source ~/ndk/alpha/x86_64/environ; make )
 ```
 
 ### 環境
