@@ -11,13 +11,28 @@
 #define SIZEOF(A) (sizeof(A) / sizeof(A[0]))
 
 typedef int (*callback)(int);
+
 typedef struct func_element {
     const char *name;
     callback fn;
 } func_element_t;
 
+typedef struct args {
+    char *fn;
+    char *file;
+    int pid;
+    int s;
+} args_t;
+
+char *target_args_list[] = {"fn", "file", "pid", "s"};
+
 int ls_func(int args) {
     printf("This is ls_func\n");
+    return 0;
+}
+
+int usage_func(int args) {
+    printf("This is usage_func\n");
     return 0;
 }
 
@@ -27,40 +42,64 @@ int lsof_func(int args) {
 }
 
 int main(int argc, char **argv) {
-    // typedef struct tagINPUT {
-    //     char *name;
-    //     char *val;
-    //     struct tagINPUT *next;
-    // } INPUT;
+    // CGI 處理
     INPUT *tmp, *input;
 
     // 初始化
     CGI_Init();
     input = (INPUT *)CGI_Get_Input();
 
-    // 搜尋參數 fn
-    if ((tmp = CGI_Find_Parameter(input, "fn")) == NULL) {
-        printf("failed to parse parameter \"fn\"\n");
-        return 0;
+    // 宣告並初始化參數結構
+    args_t args = {
+        .fn = "",
+        .file = "./",
+        .pid = 0,
+        .s = 1,
+    };
+
+    // 將參數一次 parse 完
+    int i = 0;
+    for (i = 0; i < SIZEOF(target_args_list); ++i) {
+        // 搜尋參數所有目標參數
+        if ((tmp = CGI_Find_Parameter(input, target_args_list[i])) == NULL) {
+            printf("failed to parse parameter \"%s\"\n", target_args_list[i]);
+            continue;
+        }
+
+        // 值為空
+        if (strlen(tmp->val) == 0) {
+            continue;
+        }
+
+        // 各部參數處理(目前還未想到如何用loop做)
+        if (strncmp(tmp->name, "fn", 2) == 0) {
+            args.fn = tmp->val;
+        } else if (strncmp(tmp->name, "file", 4) == 0) {
+            args.file = tmp->val;
+        } else if (strncmp(tmp->name, "pid", 3) == 0) {
+            args.pid = atoi(tmp->val);
+        } else if (strncmp(tmp->name, "s", 1) == 0) {
+            args.s = atoi(tmp->val);
+        }
     }
 
-    // 如果 fn 為空，就退出
-    char *fn = tmp->val;
-    if (strlen(fn) == 0) {
-        printf("fn is empty\n");
-        return 0;
-    }
-    printf("function is \"%s\"\n", fn);
+    // test
+    printf("fn = %s\n", args.fn);
+    printf("file = %s\n", args.file);
+    printf("pid = %d\n", args.pid);
+    printf("s = %d\n", args.s);
 
-    // 功能路由
+    // 宣告並初始化功能結構
     func_element_t func_list[] = {
         {"ls", ls_func},
+        {"usage", usage_func},
         {"lsof", lsof_func},
     };
-    int i = 0;
+
+    // 功能路由
     for (i = 0; i < SIZEOF(func_list); ++i) {
         // 不是要找的
-        if (strcmp(func_list[i].name, fn) != 0) {
+        if (strcmp(func_list[i].name, args.fn) != 0) {
             continue;
         }
 
