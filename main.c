@@ -8,12 +8,6 @@
 #include "misc.h"
 #include "ls.h"
 
-#ifndef AUTO_STR
-#define AUTO_STR __attribute__((cleanup(auto_free_str))) char *
-#endif
-
-#define SIZEOF(A) (sizeof(A) / sizeof(A[0]))
-
 int usage_func(INPUT *input) {
     printf("This is usage_func\n");
     return 0;
@@ -26,7 +20,7 @@ int lsof_func(INPUT *input) {
 
 int main(int argc, char **argv) {
     // 初始化
-    INPUT *input = CGI_Get_Input();
+    AUTO_CGI_INPUT input = CGI_Get_Input();
     if (input == NULL) {
         return 0;
     }
@@ -34,7 +28,6 @@ int main(int argc, char **argv) {
     // if not exists fn key or fn value is empty
     INPUT *tmp = NULL;
     if ((tmp = CGI_Find_Parameter(input, "fn")) == NULL || !tmp->val) {
-        CGI_Free_Input(input);
         return 0;
     }
 
