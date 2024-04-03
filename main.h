@@ -1,18 +1,13 @@
 #ifndef MAIN_H
 #define MAIN_H
 
-typedef int (*callback)(int);
+#include <cgi.h>
+
+typedef int (*callback)(INPUT *);
 
 typedef struct func_element {
     const char *name;
     callback fn;
 } func_element_t;
 
-typedef struct args {
-    char *fn;
-    char *file;
-    int pid;
-    int s;
-} args_t;
-
-#endif
+#endif  // MAIN_H

@@ -21,7 +21,8 @@
         "lsof.h": "c",
         "dirent.h": "c",
         "stat.h": "c",
-        "limits.h": "c"
+        "limits.h": "c",
+        "main.h": "c"
     },
     "C_Cpp.errorSquiggles": "disabled"
 }

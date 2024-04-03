@@ -1,6 +1,8 @@
 #ifndef LS_H
 #define LS_H
 
-void ls(const char *path);
+#include <cgi.h>
 
-#endif
+int ls(INPUT *input);
+
+#endif  // LS_H

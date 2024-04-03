@@ -3,4 +3,4 @@
 
 void usage(char *pid, char *second);
 
-#endif
+#endif  // USAGE_H

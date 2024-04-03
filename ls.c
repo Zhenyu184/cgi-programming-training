@@ -1,3 +1,4 @@
+#include <cgi.h>
 #include <stdio.h>
 #include <dirent.h>
 #include <stdlib.h>
@@ -6,6 +7,9 @@
 #include <stdbool.h>
 #include <sys/stat.h>  //statbuf 用
 #include <linux/limits.h>
+
+#include "main.h"
+#include "misc.h"
 
 // 檢查路徑是否位於...底下
 bool is_path_under(const char *path, const char *limit) {
@@ -26,17 +30,35 @@ bool is_path_under(const char *path, const char *limit) {
 }
 
 // 目錄列舉
-void ls(const char *path) {
+int ls(INPUT *input) {
+    // 初始化
+    if (input == NULL) {
+        CGI_Free_Input(input);
+        return 0;
+    }
+
+    // if not exists fn key or fn value is empty
+    INPUT *tmp = NULL;
+    if ((tmp = CGI_Find_Parameter(input, "file")) == NULL || !tmp->val) {
+        CGI_Free_Input(input);
+        return 0;
+    }
+
     // 如果路徑不在 /share 底下
-    if (!is_path_under(path, "/share")) {
-        return;
+    if (!is_path_under(tmp->val, "/share")) {
+        CGI_Free_Input(input);
+        return 0;
     }
 
     // 取得目錄(dirent)結構指標
-    DIR *dir = opendir(path);
+    AUTO_DIR dir = opendir(tmp->val);
     if (dir == NULL) {
-        return;
+        CGI_Free_Input(input);
+        return 0;
     }
+
+    // 指定輸出 text/plain
+    printf("Content-Type:text/plain; charset=utf-8\n\n");
 
     // 找底下檔案或目錄
     struct stat statbuf = {};
@@ -44,7 +66,7 @@ void ls(const char *path) {
     while ((filePtr = readdir(dir)) != NULL) {
         // 連結路徑
         char *full_path;
-        if (asprintf(&full_path, "%s/%s", path, filePtr->d_name) < 0) {
+        if (asprintf(&full_path, "%s/%s", tmp->val, filePtr->d_name) < 0) {
             continue;
         }
 
@@ -63,8 +85,9 @@ void ls(const char *path) {
             statbuf.st_size,
             filePtr->d_name);
     }
-
     printf("\n");
-    closedir(dir);
-    return;
+
+    // 離開
+    CGI_Free_Input(input);
+    return 0;
 }

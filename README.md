@@ -30,7 +30,7 @@ gcc -g main.c ls.c lsof.c usage.c  -o ./build/main.cgi -lpthread
 測試用
 
 ```
-(source ~/ndk/alpha/x86_64/environ; ${TARGET}-gcc -g  main.c -o ./build/main.cgi -I${NAS_LIB_PATH}/include -L${SYS_TARGET_PREFIX}/lib -luLinux_cgi  -Wl,-rpath,${SYS_TARGET_PREFIX}/lib )
+(source ~/ndk/alpha/x86_64/environ; ${TARGET}-gcc -g  main.c ls.c -o ./build/main.cgi -I${NAS_LIB_PATH}/include -L${SYS_TARGET_PREFIX}/lib -luLinux_cgi  -Wl,-rpath,${SYS_TARGET_PREFIX}/lib )
 ```
 
 個別編譯

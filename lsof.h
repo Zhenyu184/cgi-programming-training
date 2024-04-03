@@ -3,4 +3,4 @@
 
 void lsof(const char *path);
 
-#endif
+#endif  // LSOF_H
