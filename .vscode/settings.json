@@ -22,5 +22,6 @@
         "dirent.h": "c",
         "stat.h": "c",
         "limits.h": "c"
-    }
+    },
+    "C_Cpp.errorSquiggles": "disabled"
 }

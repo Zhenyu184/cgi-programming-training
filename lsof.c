@@ -112,7 +112,6 @@ void lsof(char *path) {
     DIR *proc_dir,
         *d_fd;
     struct dirent *proc, *entry;
-    char proc_fd_path[64], full_name[256];
     char *fdlink;
 
     proc_dir = opendir("/proc");
@@ -129,6 +128,7 @@ void lsof(char *path) {
             continue;
         }
 
+        char proc_fd_path[266] = {};
         snprintf(proc_fd_path, sizeof(proc_fd_path), "/proc/%s/fd/", proc->d_name);
         d_fd = opendir(proc_fd_path);
         if (d_fd == NULL) {
@@ -143,6 +143,7 @@ void lsof(char *path) {
             }
 
             // 透過 name 找連結
+            char full_name[521] = {};
             snprintf(full_name, sizeof(full_name), "/proc/%s/fd/%s", proc->d_name, entry->d_name);
             if ((fdlink = my_readlink(full_name)) == NULL) {
                 continue;
