@@ -4,25 +4,9 @@
 #include <stdlib.h>
 #include <string.h>
 
-// #include "ls.h"
-// #include "lsof.h"
-// #include "usage.h"
+#include "main.h"
 
 #define SIZEOF(A) (sizeof(A) / sizeof(A[0]))
-
-typedef int (*callback)(int);
-
-typedef struct func_element {
-    const char *name;
-    callback fn;
-} func_element_t;
-
-typedef struct args {
-    char *fn;
-    char *file;
-    int pid;
-    int s;
-} args_t;
 
 char *target_args_list[] = {"fn", "file", "pid", "s"};
 
@@ -82,12 +66,6 @@ int main(int argc, char **argv) {
             args.s = atoi(tmp->val);
         }
     }
-
-    // test
-    printf("fn = %s\n", args.fn);
-    printf("file = %s\n", args.file);
-    printf("pid = %d\n", args.pid);
-    printf("s = %d\n", args.s);
 
     // 宣告並初始化功能結構
     func_element_t func_list[] = {
