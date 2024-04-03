@@ -8,25 +8,22 @@
 #include <stdbool.h>
 #include <sys/stat.h>  //statbuf 用
 
-#include "main.h"
+#include "main.h"  // 為了INPUT
 #include "misc.h"
 
 // 檢查路徑是否位於...底下
-
 bool is_under(char *input, char *under) {
-    char *resolved_path = NULL;
+    AUTO_STR resolved_path = NULL;
     resolved_path = realpath(input, NULL);
     if (resolved_path == NULL) {
         return false;
     }
-    printf("This source is at %s\n", resolved_path);
-    printf("strncmp %d\n", strncmp(resolved_path, under, strlen(under)));
+    // printf("This source is at %s\n", resolved_path);
+    // printf("strncmp %d\n", strncmp(resolved_path, under, strlen(under)));
     if (strncmp(resolved_path, under, strlen(under)) != 0) {
-        free(resolved_path);
         return false;
     }
 
-    free(resolved_path);
     return true;
 }
 
@@ -46,6 +43,7 @@ int ls(INPUT *input) {
         return 0;
     }
 
+    // 如果路徑不在 /share 就離開
     if (!is_under(tmp->val, "/share")) {
         printf("Not under /share or the path is illegal\n");
         return 0;
@@ -58,22 +56,20 @@ int ls(INPUT *input) {
     }
 
     // 找底下檔案或目錄
-    struct stat statbuf = {};
     struct dirent *filePtr = NULL;
     while ((filePtr = readdir(dir)) != NULL) {
         // 連結路徑
-        char *full_path;
+        AUTO_STR full_path = NULL;
         if (asprintf(&full_path, "%s/%s", tmp->val, filePtr->d_name) < 0) {
             continue;
         }
 
         // stat() 成功返回 0 失敗返回 -1 錯誤資訊放在 errno
+        struct stat statbuf = {};
         if (stat(full_path, &statbuf) == -1) {
-            free(full_path);
             continue;
         }
 
-        free(full_path);
         printf(
             "%o\t"
             "%8ju bytes\t"

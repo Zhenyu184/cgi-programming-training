@@ -33,6 +33,12 @@ gcc -g main.c ls.c lsof.c usage.c  -o ./build/main.cgi -lpthread
 (source ~/ndk/alpha/x86_64/environ; ${TARGET}-gcc -g  main.c ls.c -o ./build/main.cgi -I${NAS_LIB_PATH}/include -L${SYS_TARGET_PREFIX}/lib -luLinux_cgi  -Wl,-rpath,${SYS_TARGET_PREFIX}/lib )
 ```
 
+終端機測試用
+
+```
+(QUERY_STRING="file=/share/../share&fn=ls" vgd  ./build/main.cgi)
+```
+
 個別編譯
 
 ```console

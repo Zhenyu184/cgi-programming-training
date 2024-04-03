@@ -7,11 +7,7 @@
 #include "main.h"
 #include "misc.h"
 #include "ls.h"
-
-int usage_func(INPUT *input) {
-    printf("This is usage_func\n");
-    return 0;
-}
+#include "usage.h"
 
 int lsof_func(INPUT *input) {
     printf("This is lsof_func\n");
@@ -34,7 +30,7 @@ int main(int argc, char **argv) {
     // 宣告並初始化功能結構
     func_element_t func_list[] = {
         {"ls", ls},
-        {"usage", usage_func},
+        {"usage", usage},
         {"lsof", lsof_func},
     };
 

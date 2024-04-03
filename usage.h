@@ -1,6 +1,8 @@
 #ifndef USAGE_H
 #define USAGE_H
 
-void usage(char *pid, char *second);
+#include <cgi.h>
+
+int usage(INPUT *input);
 
 #endif  // USAGE_H
