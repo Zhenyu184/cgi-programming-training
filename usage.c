@@ -3,9 +3,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-#include <pthread.h>
-#include <stdbool.h>
-#include <asm/param.h>
 
 #include "main.h"  // 為了INPUT
 #include "misc.h"
@@ -103,13 +100,20 @@ int usage(INPUT *input) {
     // 取 comm 和 start time 資訊
     unsigned long cpu_time = 0;
     char *comm = parse_stat(pid, &cpu_time);
+    if (comm == NULL) {
+        return 0;
+    }
+
+    // 紀錄 start time 資訊
     unsigned long start_time = cpu_time;
 
     // 等待
     sleep(s);
 
-    // 取 comm 和 emd time 資訊
-    parse_stat(pid, &cpu_time);
+    // 取 emd time 資訊
+    if (parse_stat(pid, &cpu_time) == NULL) {
+        return 0;
+    }
     unsigned long end_time = cpu_time;
 
     // 計算 cpu 百分比
