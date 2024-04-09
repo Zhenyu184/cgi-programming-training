@@ -4,15 +4,11 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "ls.h"
 #include "main.h"
 #include "misc.h"
-#include "ls.h"
+#include "lsof.h"
 #include "usage.h"
-
-int lsof_func(INPUT *input) {
-    printf("This is lsof_func\n");
-    return 0;
-}
 
 int main(int argc, char **argv) {
     // 初始化
@@ -31,7 +27,7 @@ int main(int argc, char **argv) {
     func_element_t func_list[] = {
         {"ls", ls},
         {"usage", usage},
-        {"lsof", lsof_func},
+        {"lsof", lsof},
     };
 
     // 功能路由

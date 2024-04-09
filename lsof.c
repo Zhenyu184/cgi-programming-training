@@ -93,36 +93,48 @@ char *parse_pid_stat_comm(const char *pid) {
     return ret_ptr;
 }
 
-void lsof(char *path) {
-    // printf("path = %s\n", path);
+int lsof(INPUT *input) {
+    // 指定輸出 text/plain
+    printf("Content-Type:text/plain; charset=utf-8\n\n");
 
-    DIR *proc_dir,
-        *d_fd;
-    struct dirent *proc, *entry;
-    char *fdlink;
-
-    proc_dir = opendir("/proc");
-    if (proc_dir == NULL) {
-        return;
+    // 檢查輸入指標
+    if (input == NULL) {
+        return 1;
     }
 
+    // if not exists fn key or fn value is empty
+    INPUT *tmp = NULL;
+    if ((tmp = CGI_Find_Parameter(input, "file")) == NULL || !tmp->val) {
+        return 2;
+    }
+
+    // 開啟 /proc 資料夾
+    AUTO_DIR proc_dir = opendir("/proc");
+    if (proc_dir == NULL) {
+        return 0;
+    }
+
+    // 印出項目
     printf("%4s\t%16s\t%s\t%s\n", "PID", "COMM", "FD", "NAME");
 
     // 歷遍 /proc
+    struct dirent *proc;
     while ((proc = readdir(proc_dir)) != NULL) {
         // 排除目錄名稱不是數字
         if (!isdigit(proc->d_name[0])) {
             continue;
         }
 
+        // 組完整路徑
         char proc_fd_path[266] = {};
         snprintf(proc_fd_path, sizeof(proc_fd_path), "/proc/%s/fd/", proc->d_name);
-        d_fd = opendir(proc_fd_path);
+        AUTO_DIR d_fd = opendir(proc_fd_path);
         if (d_fd == NULL) {
             continue;
         }
 
         // 歷遍 /proc/??/fd/
+        struct dirent *entry = NULL;
         while ((entry = readdir(d_fd)) != NULL) {
             // 跳過 "." 與 ".."
             if (entry->d_name[0] == '.') {
@@ -132,11 +144,12 @@ void lsof(char *path) {
             // 透過 name 找連結
             char full_name[521] = {};
             snprintf(full_name, sizeof(full_name), "/proc/%s/fd/%s", proc->d_name, entry->d_name);
+            char *fdlink = NULL;
             if ((fdlink = my_readlink(full_name)) == NULL) {
                 continue;
             }
 
-            char *real_path = absolute_path(path);
+            AUTO_STR real_path = absolute_path(tmp->val);
             if (real_path == NULL) {
                 continue;
             }
@@ -151,11 +164,8 @@ void lsof(char *path) {
             }
 
             printf("%4s\t%16s\t%s\t%s\n", proc->d_name, temp, entry->d_name, fdlink);
-            free(real_path);
         }
-        closedir(d_fd);
     }
 
-    closedir(proc_dir);
-    return;
+    return 0;
 }
