@@ -8,7 +8,7 @@
 #include <stdbool.h>
 #include <sys/stat.h>  //statbuf 用
 
-#include "main.h"  // 為了INPUT
+#include "main.h"
 #include "misc.h"
 
 // 檢查路徑是否位於...底下

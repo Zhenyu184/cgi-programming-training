@@ -1,28 +1,15 @@
 #include <ctype.h>
 #include <stdio.h>
 #include <dirent.h>
+#include <limits.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 #include <stdbool.h>
 #include <linux/limits.h>
 
-#define AUTO_STR __attribute__((cleanup(auto_free_str))) char *
-#define AUTO_FILE __attribute__((cleanup(auto_close_file))) FILE *
-
-void auto_free_str(char **str) {
-    if (str && *str) {
-        free(*str);
-        *str = NULL;
-    }
-}
-
-void auto_close_file(FILE **file) {
-    if (file && *file) {
-        fclose(*file);
-        *file = NULL;
-    }
-}
+#include "main.h"
+#include "misc.h"
 
 char *my_readlink(const char *fd_path) {
     // 開始分配一個較小的初始大小
