@@ -6,35 +6,30 @@
 #include <string.h>
 #include <unistd.h>
 #include <stdbool.h>
-#include <linux/limits.h>
 
 #include "main.h"
 #include "misc.h"
 
+// 解析 link
 char *my_readlink(const char *fd_path) {
-    // 開始分配一個較小的初始大小
-    ssize_t len = 0;
+    // 分配 buffer，buffer 不能用 AUTO_STR 因為外面還須使用
     char *buffer = NULL;
     size_t bufsize = 256;
+    char *tmp = realloc(buffer, bufsize);
+    if (tmp == NULL) {
+        // 內存分配失敗，釋放已分配的內存並返回 NULL
+        free(buffer);
+        return NULL;
+    }
+    buffer = tmp;
 
-    do {
-        // 重新分配或分配內存
-        char *tmp = realloc(buffer, bufsize);
-        if (tmp == NULL) {
-            // 內存分配失敗，釋放已分配的內存並返回 NULL
-            free(buffer);
-            return NULL;
-        }
-        buffer = tmp;
+    // 呼叫 readlink 函數
+    ssize_t len = readlink(fd_path, buffer, bufsize - 1);
 
-        // 呼叫 readlink 函數
-        len = readlink(fd_path, buffer, bufsize - 1);
-
-        // 若連結長度大於緩衝區大小，則倍增緩衝區大小
-        if (len >= 0 && (size_t)len >= bufsize - 1) {
-            bufsize *= 2;
-        }
-    } while (false);
+    // 若連結長度大於緩衝區大小，則倍增緩衝區大小
+    if (len >= 0 && (size_t)len >= bufsize - 1) {
+        bufsize *= 2;
+    }
 
     if (len == -1) {
         // 出錯，釋放內存並返回 NULL
@@ -46,6 +41,7 @@ char *my_readlink(const char *fd_path) {
     return buffer;
 }
 
+// 相對路徑轉絕對路徑
 char *absolute_path(char *relative_path) {
     char ret[PATH_MAX] = {};
     char *ret_ptr = (char *)malloc(sizeof(ret));
@@ -56,6 +52,7 @@ char *absolute_path(char *relative_path) {
     return ret_ptr;
 }
 
+// 篩出指定目錄
 bool grep_str(char *str1, char *str2) {
     char *result = strstr(str1, str2);
     if (result != NULL) {
@@ -77,7 +74,7 @@ char *parse_pid_stat_comm(const char *pid) {
     }
 
     // 讀取 stat 文件
-    char buffer[2048] = {};
+    char buffer[PATH_MAX] = {};
     if (fgets(buffer, sizeof(buffer), file) == NULL) {
         return NULL;
     }
@@ -111,7 +108,7 @@ int lsof(INPUT *input) {
     // 開啟 /proc 資料夾
     AUTO_DIR proc_dir = opendir("/proc");
     if (proc_dir == NULL) {
-        return 0;
+        return 3;
     }
 
     // 印出項目
@@ -126,7 +123,7 @@ int lsof(INPUT *input) {
         }
 
         // 組完整路徑
-        char proc_fd_path[266] = {};
+        char proc_fd_path[PATH_MAX] = {};
         snprintf(proc_fd_path, sizeof(proc_fd_path), "/proc/%s/fd/", proc->d_name);
         AUTO_DIR d_fd = opendir(proc_fd_path);
         if (d_fd == NULL) {
@@ -142,9 +139,9 @@ int lsof(INPUT *input) {
             }
 
             // 透過 name 找連結
-            char full_name[521] = {};
+            char full_name[CHAR_MAX] = {};
             snprintf(full_name, sizeof(full_name), "/proc/%s/fd/%s", proc->d_name, entry->d_name);
-            char *fdlink = NULL;
+            AUTO_STR fdlink = NULL;
             if ((fdlink = my_readlink(full_name)) == NULL) {
                 continue;
             }
@@ -155,8 +152,9 @@ int lsof(INPUT *input) {
             }
 
             // 解析 comm
-            char temp[16] = {};
-            strcpy(temp, parse_pid_stat_comm(proc->d_name));
+            char temp[CHAR_MAX] = {};
+            AUTO_STR comm = parse_pid_stat_comm(proc->d_name);
+            strcpy(temp, comm);
 
             // 篩選目標
             if (!grep_str(fdlink, real_path)) {
