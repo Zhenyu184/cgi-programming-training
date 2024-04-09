@@ -1,13 +1,24 @@
-CC=${CROSS_COMPILE_S}gcc
-LIBS = -lpthread -luLinux_cgi
-CFLAGS = -g -Wall
-DFLAGS = -D_GNU_SOURCE
-IDFLAGS = -I${NAS_LIB_PATH}/include
-LDFLAGS = -L$(SYS_TARGET_PREFIX)/lib
+CC := $(TARGET)-gcc
+TARGET := build/main.cgi
+SRCS := main.c ls.c usage.c lsof.c misc.c
+OBJS := $(addprefix build/,$(SRCS:.c=.o))
 
-SRCS = main.c ls.c usage.c lsof.c cgi.c
-OBJS = $(addprefix build/,$(SRCS:.c=.o))
-TARGET = build/main.cgi
+CFLAGS := \
+	-g \
+	-Wall \
+	-O3
+
+DFLAGS := -D_GNU_SOURCE
+
+LIBS :=  \
+	-lpthread \
+	-luLinux_cgi
+
+IDFLAGS := -I${NAS_LIB_PATH}/include
+
+LDFLAGS := \
+	-L${SYS_TARGET_PREFIX}/lib \
+	-Wl,-rpath,${SYS_TARGET_PREFIX}/lib
 
 .PHONY: all clean
 
@@ -15,11 +26,11 @@ all: $(TARGET)
 
 $(TARGET): $(OBJS)
 	@mkdir -p build
-	$(CC) $(CFLAGS) $^ -o $@ $(LIBS) $(IDFLAGS) $(LDFLAGS)
+	$(CC) $(CFLAGS) $^ -o $@ $(IDFLAGS) $(LDFLAGS) $(LIBS)
 
 build/%.o: %.c
 	@mkdir -p $(dir $@)
-	$(CC) $(CFLAGS) $(DFLAGS) -c $< -o $@ 
+	$(CC) $(CFLAGS) $(DFLAGS) -c $< -o $@ $(IDFLAGS) $(LDFLAGS) $(LIBS)
 
 clean:
 	$(RM) -r build
